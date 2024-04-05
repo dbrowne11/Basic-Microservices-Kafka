@@ -1,0 +1,40 @@
+server.port: 9002
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo_ecommerce
+    username: root
+    password: 314159
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  application.name: inventory-service
+
+  kafka:
+    producer:
+      bootstrap-servers: localhost:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer:  org.springframework.kafka.support.serializer.JsonSerializer
+      topic.name: order-confirm
+      properties:
+        spring:
+          json:
+            type.mapping: order-confirm-event:com.example.inventoryservice.payload.OrderEvent
+    consumer:
+      group-id: inventory
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      topic.name: order-topic
+      properties:
+        spring:
+          json:
+            trusted.packages: "*"
+            type.mapping: order-event:com.example.inventoryservice.payload.OrderEvent,order:com.example.inventoryservice.payload.Order
+
